@@ -23,6 +23,9 @@ namespace Crawler
             Webcrawler webcrawler; 
             webcrawler = new Webcrawler(ref q);
             webcrawler.GetLinksFromPage("http://www.spsu.edu", ref webcrawler);
+            webcrawler.CheckLinks(ref webcrawler);
+
+            Console.WriteLine("Back to main.");
 
             Console.ReadLine();
         }
@@ -45,6 +48,27 @@ namespace Crawler
         public Webcrawler(ref Queue pq)
         {
             q = pq;
+        }
+
+        public void CheckLinks(ref Webcrawler w)
+        {
+            Console.WriteLine("Checking Links \n");
+
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Danielle\Documents\HtmlLinks.txt"))
+            {
+                while (q.Count > 0)
+                {
+                    string url = q.Dequeue().ToString();
+                    string htmltext = w.GetWebText(url);
+
+                    file.WriteLine(DateTime.Today.TimeOfDay.ToString());
+                    file.WriteLine(url);
+                    file.WriteLine(htmltext);
+                    file.WriteLine("\n");
+
+                    Console.WriteLine("Writing Link response to file.");
+                }
+            }
         }
 
         public void GetLinksFromPage(string sourceUrl, ref Webcrawler w)
@@ -97,19 +121,19 @@ namespace Crawler
 
                     if (!q.Contains(HrefValue2) && !HrefValue2.Equals("#"))
                     {
-                        q.Enqueue(HrefValue2);
+                       q.Enqueue(HrefValue2);
                     }
                 }
             }
 
             Console.WriteLine("\nFinished Gathering Links.");
-
+            /*
             while (q.Count > 0)
             {
-                Console.WriteLine(q.Dequeue().ToString());
+              //  Console.WriteLine(q.Dequeue().ToString());
             }
 
-            /*
+            
             while(sourceHtml.IndexOf("<a href =") != -1)
             {
                 parse through html and pull all links and add to queue
@@ -118,25 +142,35 @@ namespace Crawler
 
         public string GetWebText(string url)
         {
-            Console.WriteLine("Getting HTML from Webpage \n");
+            try
+            {
+                Console.WriteLine("\nGetting HTML from Webpage \n");
+                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+                request.UserAgent = "A .NET Web Crawler";
+                WebResponse response = request.GetResponse();
+                Stream stream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(stream);
+                string htmlText = reader.ReadToEnd();
+                //Console.WriteLine(htmlText);
+                Console.WriteLine("Finished gathering HTML");
 
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+                return htmlText;
+            }
+            catch (WebException webExcp)
+            {
+                Console.WriteLine("A WebException has been caught.");
+                Console.WriteLine(webExcp.ToString());
+                WebExceptionStatus status = webExcp.Status;
+                if (status == WebExceptionStatus.ProtocolError)
+                {
+                    Console.Write("The server returned protocol error ");
+                    HttpWebResponse httpResponse = (HttpWebResponse)webExcp.Response;
+                    Console.WriteLine((int)httpResponse.StatusCode + " - "
+                       + httpResponse.StatusCode);
+                }
 
-            request.UserAgent = "A .NET Web Crawler";
-
-            WebResponse response = request.GetResponse();
-
-            Stream stream = response.GetResponseStream();
-
-            StreamReader reader = new StreamReader(stream);
-
-            string htmlText = reader.ReadToEnd();
-
-            //Console.WriteLine(htmlText);
-
-            Console.WriteLine("\nFinished gathering HTML");
-
-            return htmlText;
+                return webExcp.ToString();
+            }
         }
     }
 
