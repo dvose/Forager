@@ -22,7 +22,7 @@ namespace Crawler
 
             Webcrawler webcrawler; 
             webcrawler = new Webcrawler(ref q);
-            webcrawler.GetLinksFromPage("http://www.spsu.edu", ref webcrawler);
+            webcrawler.GetLinksFromPage("http://www.spsu.edu/admission", ref webcrawler);
             webcrawler.CheckLinks(ref webcrawler);
 
             Console.WriteLine("Back to main.");
@@ -44,6 +44,7 @@ namespace Crawler
         //public PriorityQueue q;
 
         public Queue q;
+        public Queue permanantQ = new Queue();
 
         public Webcrawler(ref Queue pq)
         {
@@ -54,90 +55,136 @@ namespace Crawler
         {
             Console.WriteLine("Checking Links \n");
 
+            System.IO.File.WriteAllText(@"C:\Users\Danielle\Documents\HtmlLinks.txt", string.Empty);
+
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Danielle\Documents\HtmlLinks.txt"))
             {
+
                 while (q.Count > 0)
                 {
                     string url = q.Dequeue().ToString();
-                    string htmltext = w.GetWebText(url);
+                    if (!permanantQ.Contains(url))
+                    {
+                        permanantQ.Enqueue(url);
+                        if (!url.Contains("@spsu.edu") && !url.Contains("@kennesaw.edu") && !url.Contains("#"))
+                        {
+                            string htmltext = w.GetWebText(url);
 
-                    file.WriteLine(DateTime.Today.TimeOfDay.ToString());
-                    file.WriteLine(url);
-                    file.WriteLine(htmltext);
-                    file.WriteLine("\n");
+                            file.WriteLine(DateTime.Today.TimeOfDay.ToString());
+                            file.WriteLine(url);
+                            file.WriteLine(htmltext);
+                            file.WriteLine("\n");
 
-                    Console.WriteLine("Writing Link response to file.");
+                            Console.WriteLine("Writing Link response to file.");
+                            w.GetLinksFromPage(url, ref w);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Already checked Link");
+                    }
                 }
             }
         }
 
         public void GetLinksFromPage(string sourceUrl, ref Webcrawler w)
         {
-            string sourceHtml = w.GetWebText(sourceUrl);
-
-            Console.WriteLine("\nGathering Links from Webpage.");
-
-            MatchCollection AnchorTags = Regex.Matches(sourceHtml.ToLower(), @"(<a.*?>.*?</a>)", RegexOptions.Singleline);
-
-            foreach (Match AnchorTag in AnchorTags)
+            try
             {
-                string value = AnchorTag.Groups[1].Value;
-
-                Match HrefAttribute = Regex.Match(value, @"href=\""(.*?)\""",
-                    RegexOptions.Singleline);
-                if (HrefAttribute.Success)
+                Console.WriteLine(sourceUrl);
+                if (!sourceUrl.Contains("@spsu.edu") && !sourceUrl.Contains(".pdf") && !sourceUrl.Contains(".jpg")
+                    && sourceUrl.Contains("spsu.edu"))
                 {
-                    string HrefValue = HrefAttribute.Groups[1].Value;
 
-                    char[] href;
+                    string sourceHtml = w.GetWebText(sourceUrl);
 
-                    href = HrefValue.ToCharArray();
+                    Console.WriteLine("\nGathering Links from Webpage.");
+                    Console.WriteLine(sourceUrl);
 
-                    if(href[0].Equals('/'))
+                    MatchCollection AnchorTags = Regex.Matches(sourceHtml.ToLower(), @"(<a.*?>.*?</a>)", RegexOptions.Singleline);
+
+                    foreach (Match AnchorTag in AnchorTags)
                     {
-                        HrefValue = sourceUrl + HrefValue;
+                        string value = AnchorTag.Groups[1].Value;
+
+                        Match HrefAttribute = Regex.Match(value, @"href=\""(.*?)\""",
+                            RegexOptions.Singleline);
+                        if (HrefAttribute.Success)
+                        {
+                            string HrefValue = HrefAttribute.Groups[1].Value;
+
+                            char[] href;
+
+                            href = HrefValue.ToCharArray();
+
+                            Console.WriteLine("Href Value: " + HrefValue);
+
+                            if (!HrefValue.Equals(" ") && !HrefValue.Equals(null) && href.Length > 0)
+                            {
+                                if (href[0].Equals('/'))
+                                {
+                                    HrefValue = "http://www.spsu.edu" + HrefValue;
+                                }
+
+                                if (!q.Contains(HrefValue) && !HrefValue.Equals("#") && !HrefValue.Equals("./"))
+                                {
+                                    q.Enqueue(HrefValue);
+                                }
+                            }
+                        }
+
+                        Match HrefAttribute2 = Regex.Match(value, @"<img.*?src=""(.*?)""",
+                           RegexOptions.Singleline);
+                        if (HrefAttribute2.Success)
+                        {
+
+                            string HrefValue2 = HrefAttribute2.Groups[1].Value;
+
+                            char[] href2;
+
+                            href2 = HrefValue2.ToCharArray();
+
+                            Console.WriteLine("Href Value: " + HrefValue2);
+
+                            if (!HrefValue2.Equals(" ") && !HrefValue2.Equals(null) && href2.Length > 0)
+                            {
+
+                                if (href2[0].Equals('/'))
+                                {
+                                    HrefValue2 = "http://www.spsu.edu" + HrefValue2;
+                                }
+
+
+                                if (!q.Contains(HrefValue2) && !HrefValue2.Equals("#") && !HrefValue2.Equals("./"))
+                                {
+                                    q.Enqueue(HrefValue2);
+                                }
+                            }
+                        }
                     }
 
-                    if (!q.Contains(HrefValue) && !HrefValue.Equals("#"))
+                    Console.WriteLine("Finished Gathering Links.");
+                    /*
+                    while (q.Count > 0)
                     {
-                        q.Enqueue(HrefValue);
+                      //  Console.WriteLine(q.Dequeue().ToString());
                     }
-                }
-
-                Match HrefAttribute2 = Regex.Match(value, @"<img.*?src=""(.*?)""",
-                   RegexOptions.Singleline);
-                if (HrefAttribute2.Success)
-                {
-                    string HrefValue2 = HrefAttribute2.Groups[1].Value;
-
-                    char[] href2;
-
-                    href2 = HrefValue2.ToCharArray();
-
-                    if (href2[0].Equals('/'))
-                    {
-                        HrefValue2 = sourceUrl + HrefValue2;
-                    }
-
-                    if (!q.Contains(HrefValue2) && !HrefValue2.Equals("#"))
-                    {
-                       q.Enqueue(HrefValue2);
-                    }
-                }
-            }
-
-            Console.WriteLine("\nFinished Gathering Links.");
-            /*
-            while (q.Count > 0)
-            {
-              //  Console.WriteLine(q.Dequeue().ToString());
-            }
 
             
-            while(sourceHtml.IndexOf("<a href =") != -1)
+                    while(sourceHtml.IndexOf("<a href =") != -1)
+                    {
+                        parse through html and pull all links and add to queue
+                    }  */
+                }
+                else
+                {
+                    Console.WriteLine("\nCannot gather links outside of SPSU domain.");
+                }
+            }
+            catch
             {
-                parse through html and pull all links and add to queue
-            }  */
+                Console.WriteLine("Miscellaneous exception thrown.");
+            }
         }
 
         public string GetWebText(string url)
@@ -145,6 +192,7 @@ namespace Crawler
             try
             {
                 Console.WriteLine("\nGetting HTML from Webpage \n");
+                Console.WriteLine(url);
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
                 request.UserAgent = "A .NET Web Crawler";
                 WebResponse response = request.GetResponse();
@@ -170,6 +218,11 @@ namespace Crawler
                 }
 
                 return webExcp.ToString();
+            }
+            catch
+            {
+                Console.WriteLine("Invalid link");
+                return null;
             }
         }
     }
