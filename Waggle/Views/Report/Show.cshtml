@@ -1,0 +1,23 @@
+﻿@model Forager.Models.ReportModel
+@{
+    ViewBag.Title = "Show";
+}
+
+<h2>Viewing Report @Model.Id </h2>
+
+
+<table style="width:100%">
+    <tr>
+        <td><b>Page</b></td>
+        <td><b>Broken Link</b></td>
+        <td><b>Error Type</b></td>
+    </tr>
+    @foreach(Forager.Models.ErrorModel err in Model.Errors)
+    {
+        <tr>
+            <td>@err.WebPage</td>
+            <td>@err.Link</td>
+            <td>@err.ErrorStatus</td>
+        </tr>
+    }
+</table>
