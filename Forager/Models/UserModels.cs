@@ -51,7 +51,7 @@ namespace Forager.Models
     public class LoginModel
     {
         [Required]
-        [Display(Name = "Email")]
+        [Display(Name = "Username")]
         public string Email { get; set; }
 
         [Required]
