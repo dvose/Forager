@@ -19,6 +19,7 @@ namespace Crawler
             public static Queue checkedQueue = new Queue();
             public static List<Error> errors = new List<Error>();
             public static int linksChecked = 0;
+            public static Boolean shouldStop = false;
 
             /*public WebCrawler(ref Queue pq)
             {
@@ -26,7 +27,7 @@ namespace Crawler
             }
              */
             public static void printStats() {
-                for (int i = 0; i < 1000000; i++)
+                while(!shouldStop)
                 {
                     Thread.Sleep(1000);
                     System.Diagnostics.Debug.WriteLine("\nPages Checked " + linksChecked);
@@ -47,11 +48,11 @@ namespace Crawler
                 //System.IO.File.WriteAllText(@"C:\Users\Dustin\Documents\HtmlLinks.txt", string.Empty);
                 //using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Dustin\Documents\HtmlLinks.txt"))
                 //{
-                    while (true)
+                    while (!shouldStop)
                     {
                         if (linkQueue.Count == 0)
                         {
-                            Thread.Sleep(1000);
+                            Thread.Sleep(1500);
                             if (linkQueue.Count == 0)
                                 break;
                         }
@@ -92,7 +93,6 @@ namespace Crawler
                     //}
                 }
             }
-
             public static void GetLinksFromPage(string sourceUrl)
             {
                 try
@@ -192,7 +192,6 @@ namespace Crawler
                     //Console.WriteLine("Miscellaneous exception thrown.");
                 }
             }
-
             public static string GetWebText(string url)
             {
                 try

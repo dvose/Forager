@@ -270,7 +270,7 @@
     <Content Include="Crawler\Crawler\obj\Debug\Crawler.csproj.FileListAbsolute.txt" />
     <Content Include="Crawler\Crawler\obj\Debug\Crawler.exe" />
     <Content Include="Crawler\Crawler\obj\Debug\Crawler.pdb" />
-    <Content Include="favicon.ico" />
+    <Content Include="Images\favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Crawler\Crawler.v12.suo" />
     <Content Include="Crawler\Crawler\App.config" />
@@ -282,7 +282,6 @@
     <Content Include="Images\logo.png" />
     <Content Include="Images\Thumbs.db" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
-    <Content Include="Images\favicon.ico" />
     <Content Include="Scripts\jquery-1.8.2.js" />
     <Content Include="Scripts\jquery-1.8.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />

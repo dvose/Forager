@@ -1,5 +1,6 @@
 ﻿using Crawler;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -12,24 +13,41 @@ namespace Crawler
         static CrawlerPool threads;
         static Thread printerThread;
         static Thread threadCounter;
+        public static Boolean inProgress = false;
 
         public static void Start(int threadCount)
         {
-            threads = new CrawlerPool(threadCount);
-            printerThread = new Thread(WebCrawler.printStats);
-            threadCounter = new Thread(CrawlerPool.AliveThreadsCount);
+            if (!inProgress)
+            {
+                CrawlerControl.inProgress = true;
+                CrawlerControl.Reset();
+                threads = new CrawlerPool(threadCount);
+                printerThread = new Thread(WebCrawler.printStats);
+                threadCounter = new Thread(CrawlerPool.AliveThreadsCount);
 
-            WebCrawler.linkQueue.Enqueue("http://www.spsu.edu");
-            printerThread.Start();
-            threadCounter.Start();
-            threads.StartPool();
+                WebCrawler.linkQueue.Enqueue("http://www.spsu.edu");
+                printerThread.Start();
+                threadCounter.Start();
+                threads.StartPool();
+            }
+            else {
+                System.Diagnostics.Debug.WriteLine("-----------------------------\nWebCrawler in progress\n-------------------------------");
+            }
+            
         }
 
         public static void Stop()
         {
-            threads.StopPool();
-            printerThread.Abort();
-            threadCounter.Abort();
+            WebCrawler.shouldStop = true;
+        }
+
+        public static void Reset() 
+        {
+            WebCrawler.linkQueue = new Queue();
+            WebCrawler.linksChecked = 0;
+            WebCrawler.errors = new List<Error>();
+            WebCrawler.checkedQueue = new Queue();
+            WebCrawler.shouldStop = false;
         }
     }
 }

@@ -2,12 +2,22 @@
     <text>
         @using (Html.BeginForm("LogOff", "User", FormMethod.Post, new { id = "logoutForm" })) {
             @Html.AntiForgeryToken()
-            <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+            <nav>
+                <ul class="menu">
+                <li>
+                    <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+                </li>             
+               </ul>
+            </nav>
+            
         }
     </text>
 } else {
-    <ul>
+    <nav>
+    <ul class="menu">
+        <li>@Html.ActionLink("Log in", "Login", "User", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>           
+               </ul>
+            </nav>
         @*<li>@Html.ActionLink("Register", "Register", "User", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>*@
-        <li>@Html.ActionLink("Log in", "Login", "User", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
-    </ul>
+       
 }

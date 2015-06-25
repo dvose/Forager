@@ -40,7 +40,7 @@ namespace Crawler
 
         public static void AliveThreadsCount() 
         {
-            for (int i = 0; i < 100000; i++)
+            while(true)
             {
                 Thread.Sleep(1000);
                 int count = 0;
@@ -51,8 +51,17 @@ namespace Crawler
                         count++;
                     }
                 }
+                
                 System.Diagnostics.Debug.WriteLine("Alive Threads: " + count);
-            }
+                
+                //if no threads are alive, the crawler has finished or has been stopped.
+                //The CrawlerControl must be notified that the web crawler is no longer in progress
+                if (count == 0)
+                {
+                    CrawlerControl.inProgress = false;
+                    break;
+                }
+            }          
         }
 
 

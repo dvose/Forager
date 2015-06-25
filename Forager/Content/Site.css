@@ -5,7 +5,7 @@
 }
 
 body {
-    background-color: #fff;
+    background-color: #90D39B;
     border-top: solid 10px #000;
     color: #333;
     font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif;
@@ -182,7 +182,7 @@ footer {
 
 /* menu
 ----------------------------------------------------------*/
-ul#menu {
+ul.menu {
     font-size: 1.3em;
     font-weight: 600;
     margin: 0 0 5px;
@@ -190,21 +190,24 @@ ul#menu {
     text-align: right;
 }
 
-    ul#menu li {
+    ul.menu li {
         display: inline;
         list-style: none;
         padding-left: 15px;
     }
 
-        ul#menu li a {
+        ul.menu li a {
             background: none;
-            color: #999;
+            color: black;
             text-decoration: none;
+            -webkit-transition: background .2s; /* Safari */
+            transition: background .2s;
         }
 
-        ul#menu li a:hover {
-            color: #333;
+        ul.menu li a:hover {
+            color: black;
             text-decoration: none;
+            background: white;
         }
 
 
@@ -644,13 +647,13 @@ tr.pager td {
         margin-bottom: 5px;
     }
 
-    ul#menu {
+    ul.menu {
         margin: 0;
         padding: 0;
         text-align: center;
     }
 
-        ul#menu li {
+        ul.menu li {
             margin: 0;
             padding: 0;
         }
