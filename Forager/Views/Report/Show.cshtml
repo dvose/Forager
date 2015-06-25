@@ -1,23 +1,60 @@
-﻿@model Forager.Models.ReportModel
-@{
-    ViewBag.Title = "Show";
-}
+﻿@*
+    @model Forager.Models.ReportModel
+    @{
+        ViewBag.Title = "Show";
+    }
 
-<h2>Viewing Report @Model.Id </h2>
+    <h2>Viewing Report @Model.Id </h2>
 
 
-<table style="width:100%">
-    <tr>
-        <td><b>Page</b></td>
-        <td><b>Broken Link</b></td>
-        <td><b>Error Type</b></td>
-    </tr>
-    @foreach(Forager.Models.ErrorModel err in Model.Errors)
-    {
+    <table style="width:100%">
         <tr>
-            <td>@err.WebPage</td>
-            <td>@err.Link</td>
-            <td>@err.ErrorStatus</td>
+            <td><b>Page</b></td>
+            <td><b>Broken Link</b></td>
+            <td><b>Error Type</b></td>
         </tr>
+        @foreach(Forager.Models.ErrorModel err in Model.Errors)
+        {
+            <tr>
+                <td>@err.WebPage</td>
+                <td>@err.Link</td>
+                <td>@err.ErrorStatus</td>
+            </tr>
+        }
+    </table>
+*@
+
+@model Forager.ViewModels.ReportShow
+
+<h2>Viewing Report @Model.PageErrors[0].ReportId </h2>
+<br />
+<table><tr>
+<td>Sort pages by: @Html.ActionLink("Number of errors", "Show", "Report", new { ReportId = Model.PageErrors[0].ReportId, SortType = 2 }, null) @Html.ActionLink("Crawl Order", "Show", "Report", new { ReportId = Model.PageErrors[0].ReportId, SortType = 1 }, null)</td>
+<td>Sort Errors by: @Html.ActionLink("Error Type", "Show", "Report", new { ReportId = Model.PageErrors[0].ReportId, SortType = 4 }, null) @Html.ActionLink("Link Name", "Show", "Report", new { ReportId = Model.PageErrors[0].ReportId, SortType = 5 }, null)</td>
+</tr></table>
+
+ 
+ 
+ 
+<table style="table-layout: fixed; width: 100%">
+    @for (int i = 0; i < Model.PageErrors.Count; i++ )
+    {
+        Forager.Models.PageError pe = Model.PageErrors[i];
+        <tr>
+            <td style="word-wrap: break-word" width="70%"><b><a href="@pe.Page" target="_blank">@pe.Page</a></b></td>
+            <td style="word-wrap: break-word" width="30%"><b>Errors on this page: @pe.GetErrorList().Count @Html.ActionLink("Toggle View", "ToggleFold", "Report", new { PEIndex = i, SortType = 0 }, null)</b></td>
+        </tr>
+
+        if (pe.Unfold)
+        {
+            foreach (Forager.Models.ErrorModel err in pe.GetErrorList())
+            {
+                <tr>
+                    <td style="word-wrap: break-word" width="60%">@err.Link</td>
+                    <td style="word-wrap: break-word" width="40%">@err.ErrorStatus</td>
+                </tr>
+            }
+        }
+        <tr></tr>
     }
 </table>
