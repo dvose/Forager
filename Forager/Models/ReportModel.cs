@@ -19,6 +19,8 @@ namespace Forager.Models
     {
         [Key]
         public int Id { get; set; }
+        public string TimeStampStart { get; set;}
+        public string TimeStampStop { get; set;}
         public List<ErrorModel> Errors;
     }
 }

@@ -23,6 +23,10 @@ namespace Forager
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterAuth();
+
+            System.Data.Entity.Database.SetInitializer<Forager.Models.ReportEntitiesContext>(null);
+            System.Data.Entity.Database.SetInitializer<Forager.Models.ErrorEntitiesContext>(null);
+
         }
     }
 }

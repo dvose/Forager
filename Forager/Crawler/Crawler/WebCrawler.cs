@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Forager.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -75,14 +76,6 @@ namespace Crawler
                             if (!url.Contains("@spsu.edu") && !url.Contains("@kennesaw.edu") && !url.Contains("#"))
                             {
                                 string htmltext = WebCrawler.GetWebText(url);
-                                //lock (file)
-                                //{
-                                //    file.WriteLine(DateTime.Today.TimeOfDay.ToString());
-                                //    file.WriteLine(url);
-                                //    file.WriteLine(htmltext);
-                                //    file.WriteLine("\n");
-                                //}
-                                //Console.WriteLine("Writing Link response to file.");
                                 WebCrawler.GetLinksFromPage(url);
                             }
                         }
@@ -99,7 +92,8 @@ namespace Crawler
                 {
                     //Console.WriteLine(sourceUrl);
                     if (!sourceUrl.Contains("@spsu.edu") && !sourceUrl.Contains(".pdf") && !sourceUrl.Contains(".jpg")
-                        && sourceUrl.Contains("spsu.edu") && !sourceUrl.Contains(".gif") && !sourceUrl.Contains(".png"))
+                        && sourceUrl.Contains("spsu.edu") && !sourceUrl.Contains(".gif") && !sourceUrl.Contains(".png")
+                        && !sourceUrl.Contains("http://www.omniupdate.com") && !sourceUrl.Contains(".pcf"))
                     {
 
                         string sourceHtml = WebCrawler.GetWebText(sourceUrl);
@@ -108,7 +102,7 @@ namespace Crawler
                         //Console.WriteLine(sourceUrl);
 
                         MatchCollection AnchorTags = Regex.Matches(sourceHtml.ToLower(), @"(<a.*?>.*?</a>)", RegexOptions.Singleline);
-
+                        
                         foreach (Match AnchorTag in AnchorTags)
                         {
                             string value = AnchorTag.Groups[1].Value;
@@ -134,7 +128,11 @@ namespace Crawler
 
                                     if (!linkQueue.Contains(HrefValue) && !HrefValue.Equals("#") && !HrefValue.Equals("./"))
                                     {
-                                        linkQueue.Enqueue(HrefValue);
+                                        lock(linkQueue)
+                                        {
+                                            linkQueue.Enqueue(HrefValue);
+                                        }
+                                        
                                     }
                                 }
                             }
@@ -163,7 +161,10 @@ namespace Crawler
 
                                     if (!linkQueue.Contains(HrefValue2) && !HrefValue2.Equals("#") && !HrefValue2.Equals("./"))
                                     {
-                                        linkQueue.Enqueue(HrefValue2);
+                                        lock (linkQueue)
+                                        {
+                                            linkQueue.Enqueue(HrefValue2);
+                                        }
                                     }
                                 }
                             }
@@ -194,16 +195,29 @@ namespace Crawler
             }
             public static string GetWebText(string url)
             {
+                WebResponse response = null;
+                Stream stream = null;
+                StreamReader reader = null;
                 try
                 {
+
                     //Console.WriteLine("\nGetting HTML from Webpage \n");
                     //Console.WriteLine(url);
                     HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
-                    request.UserAgent = "A .NET Web Crawler";
-                    WebResponse response = request.GetResponse();
-                    Stream stream = response.GetResponseStream();
-                    StreamReader reader = new StreamReader(stream);
-                    string htmlText = reader.ReadToEnd();
+                    request.UserAgent = "A .NET Web Crawler"; 
+                    string htmlText;
+                    request.Accept = "text/html";
+                    using (response = request.GetResponse()) {
+                       
+                        using (stream = response.GetResponseStream()) {
+                            using (reader = new StreamReader(stream))
+                            {
+                                htmlText = reader.ReadToEnd();
+                            }
+                            
+                        }
+                    }
+                
                     //Console.WriteLine(htmlText);
                     //Console.WriteLine("Finished gathering HTML");
 
@@ -213,6 +227,13 @@ namespace Crawler
                 {
                     //Console.WriteLine("A WebException has been caught.");
                     //Console.WriteLine(webExcp.ToString());
+                    if (response != null)
+                        response.Dispose();
+                    if (stream != null)
+                        stream.Dispose();
+                    if (reader != null)
+                        reader.Dispose();
+                    
                     WebExceptionStatus status = webExcp.Status;
                     if (status == WebExceptionStatus.ProtocolError)
                     {
@@ -220,11 +241,19 @@ namespace Crawler
                         HttpWebResponse httpResponse = (HttpWebResponse)webExcp.Response;
                         //Console.WriteLine((int)httpResponse.StatusCode + " - "
                            //+ httpResponse.StatusCode);
-                        lock (errors)
+
+
+                        using (ErrorEntitiesContext errorsDb = new ErrorEntitiesContext())
                         {
-                            errors.Add(new Error(webExcp.ToString(), url));
-                           
+                            ErrorModel error = new ErrorModel();
+                            error.ErrorStatus = webExcp.ToString();
+                            error.Link = url;
+                            error.ErrorTimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            error.ReportId = CrawlerControl.currentReportId;
+                            errorsDb.Errors.Add(error);
+                            errorsDb.SaveChanges();
                         }
+                        
                     }
                     //Console.WriteLine(errors.Last().StatusCode);
                     return webExcp.ToString();

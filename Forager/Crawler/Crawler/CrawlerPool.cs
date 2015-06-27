@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Forager.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -59,6 +60,13 @@ namespace Crawler
                 if (count == 0)
                 {
                     CrawlerControl.inProgress = false;
+                    threads = null;
+                    //using (ReportEntitiesContext db = new ReportEntitiesContext()) {
+                    //    ReportModel currentReport = db.Reports.Find(CrawlerControl.currentReportId);
+                    //    currentReport.TimeStampStop = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    //    db.Entry(currentReport).State = System.Data.EntityState.Modified;
+                    //    db.SaveChanges();
+                    //}
                     break;
                 }
             }          

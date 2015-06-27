@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Web;
+using Forager.Models;
 
 namespace Crawler
 {
@@ -14,6 +15,8 @@ namespace Crawler
         static Thread printerThread;
         static Thread threadCounter;
         public static Boolean inProgress = false;
+
+        public static int currentReportId;
 
         public static void Start(int threadCount)
         {
@@ -29,6 +32,14 @@ namespace Crawler
                 printerThread.Start();
                 threadCounter.Start();
                 threads.StartPool();
+                using (ReportEntitiesContext db = new ReportEntitiesContext())
+                {
+                    ReportModel newReport = new ReportModel();
+                    newReport.TimeStampStart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    db.Reports.Add(newReport);
+                    db.SaveChanges();
+                    currentReportId = newReport.Id;
+                }
             }
             else {
                 System.Diagnostics.Debug.WriteLine("-----------------------------\nWebCrawler in progress\n-------------------------------");
