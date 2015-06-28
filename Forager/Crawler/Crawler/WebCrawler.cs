@@ -63,7 +63,7 @@ namespace Crawler
                             }
                             sl = (SourceLink) linkQueue.Dequeue();
                             url = sl.SourceAddress;
-                            if(url.Contains("http://www.omniupdate.com")){
+                            if(url.Contains("http://www.omniupdate.com") || url.Contains("mailto:") || !url.Contains("http")){
                                 continue;
                             }
                             lock (currentLink) 
@@ -142,7 +142,7 @@ namespace Crawler
                                     HrefValue = WebCrawler.NormalizeLink(HrefValue);
                                     if (href[0].Equals('/'))
                                     {
-                                       //HrefValue = sl.SourceAddress + HrefValue;
+                                       HrefValue = sl.SourceAddress + HrefValue;
                                     }
 
                                     SourceLink sl2 = new SourceLink(HrefValue, sl.SourceAddress, sl.PageDepth + 1);
@@ -177,7 +177,7 @@ namespace Crawler
                                     HrefValue2 = WebCrawler.NormalizeLink(HrefValue2);
                                     if (href2[0].Equals('/'))
                                     {
-                                        //HrefValue2 = sl.SourceAddress + HrefValue2;
+                                        HrefValue2 = sl.SourceAddress + HrefValue2;
                                     }
 
                                     SourceLink sl2 = new SourceLink(HrefValue2, sl.SourceAddress, sl.PageDepth + 1);
@@ -240,10 +240,10 @@ namespace Crawler
                     HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
                     request.UserAgent = "A .NET Web Crawler";
 
-                    if (url.Contains(".doc") || url.Contains(".ppt") || url.Contains("http://www.omniupdate.com") || url.Contains(".pdf")
+                    if (url.Contains(".doc") || url.Contains(".ppt") || url.Contains(".pps") || url.Contains("http://www.omniupdate.com") || url.Contains(".pdf")
                         || url.Contains(".jpg") || url.Contains(".jpeg") || url.Contains(".png") || url.Contains(".gif")
                         || url.Contains(".pcf") || url.Contains(".mp4") || url.Contains(".mp3") || url.Contains(".mov")
-                        || url.Contains(".avi")) {
+                        || url.Contains(".avi") || url.Contains(".zip") || url.Contains(".rdo")) {
                             request.Method = "HEAD";
                     }
                     string htmlText = null;
@@ -297,7 +297,7 @@ namespace Crawler
                         lock (errors) 
                         {
                             errors.Add(error);
-                            if (errors.Count > 1000) 
+                            if (errors.Count > 100) 
                             {
                                 WebCrawler.WriteErrors();
                             }

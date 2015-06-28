@@ -49,7 +49,14 @@ namespace Crawler
                 {
                     if (thread.IsAlive)
                     {
-                        count++;
+                        if (WebCrawler.shouldStop)
+                        {
+                            thread.Abort();
+                        }
+                        else
+                        {
+                            count++;
+                        }
                     }
                 }
                 

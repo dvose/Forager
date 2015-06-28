@@ -83,3 +83,4 @@ C:\Users\Dustin\projects\Forager\Forager\bin\zh-Hans\System.Spatial.resources.dl
 C:\Users\Dustin\projects\Forager\Forager\bin\zh-Hant\System.Spatial.resources.dll
 C:\Users\Dustin\projects\Forager\Forager\obj\Debug\Forager.dll
 C:\Users\Dustin\projects\Forager\Forager\obj\Debug\Forager.pdb
+C:\Users\Dustin\projects\Forager\Forager\obj\Debug\Forager.csprojResolveAssemblyReference.cache
