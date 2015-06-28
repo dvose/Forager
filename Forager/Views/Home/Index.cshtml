@@ -1,25 +1,66 @@
 ﻿@{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "Crawler";
 }
-@section featured {
-    <section class="featured">
-        <div class="content-wrapper">
-            <hgroup class="title">
-                <h1>@ViewBag.Title.</h1>
-                <h2>@ViewBag.Message</h2>
-            </hgroup>
-            <p>
-                To learn more about ASP.NET MVC visit
-                <a href="http://asp.net/mvc" title="ASP.NET MVC Website">http://asp.net/mvc</a>.
-                The page features <mark>videos, tutorials, and samples</mark> to help you get the most from ASP.NET MVC.
-                If you have any questions about ASP.NET MVC visit
-                <a href="http://forums.asp.net/1146.aspx/1?MVC" title="ASP.NET MVC Forum">our forums</a>.
-            </p>
-        </div>
-    </section>
-}
+@*replaces home view*@
+<html>
 
-<h3>We suggest the following:</h3>
+<head>
+    <title></title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#div2").click(function () {
+                $("#div1").css("background-color", "yellow");
+            });
+            $("#div3").click(function () {
+                $("#div1").css("background-color", "blue");
+            });
+        });
+    </script>
+    <style>
+        #div1 {
+            height: 150px;
+            width: 600px;
+            padding: 10px;
+            margin: 3px;
+            border: 1px solid black;
+            background-color: white;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="div1"></div>
+    <br>
+    <div id="div2" style="text-align: center;">
+    
+   <button id="btn1" text-align:center>Start Crawler</button></div> 
+    <div id="div3"style="text-align: center;"> <button id="btn2">Stop</button></div>
+
+</body>
+</html>
+
+
+@*
+    @section featured {
+        <section class="featured">
+            <div class="content-wrapper">
+                <hgroup class="title">
+                    <h1>@ViewBag.Title.</h1>
+                    <h2>@ViewBag.Message</h2>
+                </hgroup>
+                <p>
+                    To learn more about ASP.NET MVC visit
+                    <a href="http://asp.net/mvc" title="ASP.NET MVC Website">http://asp.net/mvc</a>.
+                    The page features <mark>videos, tutorials, and samples</mark> to help you get the most from ASP.NET MVC.
+                    If you have any questions about ASP.NET MVC visit
+                    <a href="http://forums.asp.net/1146.aspx/1?MVC" title="ASP.NET MVC Forum">our forums</a>.
+                </p>
+            </div>
+        </section>
+    }
+    <h3>We suggest the following:</h3>
 <ol class="round">
     <li class="one">
         <h5>Getting Started</h5>
@@ -43,4 +84,4 @@
         and price for your applications.
         <a href="http://go.microsoft.com/fwlink/?LinkId=245157">Learn more…</a>
     </li>
-</ol>
+</ol>*@
