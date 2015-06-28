@@ -59,24 +59,28 @@ namespace Crawler
                         }
                         //Console.WriteLine("Thread" + Thread.CurrentThread.Name);
                         string url;
+                        SourceLink sl;
+
+
                         lock (linkQueue)
                         {
                             if (linkQueue.Count == 0) {
                                 continue;
                             }
-                            url = (string) linkQueue.Dequeue();
+                            sl = (SourceLink)linkQueue.Dequeue();
+                            url = sl.SourceAddress;
                         }
                         if (url != null && !checkedQueue.Contains(url))
                         {
                             lock (checkedQueue)
                             {
-                                checkedQueue.Enqueue(url);
+                                checkedQueue.Enqueue(sl);
                                 linksChecked++;
                             }
                             if (!url.Contains("@spsu.edu") && !url.Contains("@kennesaw.edu") && !url.Contains("#"))
                             {
-                                string htmltext = WebCrawler.GetWebText(url);
-                                WebCrawler.GetLinksFromPage(url);
+                                string htmltext = WebCrawler.GetWebText(sl);
+                                WebCrawler.GetLinksFromPage(sl);
                             }
                         }
                         else
@@ -86,8 +90,11 @@ namespace Crawler
                     //}
                 }
             }
-            public static void GetLinksFromPage(string sourceUrl)
+            public static void GetLinksFromPage(SourceLink sl)
             {
+                string sourceUrl = sl.SourceAddress;
+
+
                 try
                 {
                     //Console.WriteLine(sourceUrl);
@@ -96,7 +103,7 @@ namespace Crawler
                         && !sourceUrl.Contains("http://www.omniupdate.com") && !sourceUrl.Contains(".pcf"))
                     {
 
-                        string sourceHtml = WebCrawler.GetWebText(sourceUrl);
+                        string sourceHtml = WebCrawler.GetWebText(sl);
 
                         //Console.WriteLine("\nGathering Links from Webpage.");
                         //Console.WriteLine(sourceUrl);
@@ -123,14 +130,17 @@ namespace Crawler
                                 {
                                     if (href[0].Equals('/'))
                                     {
-                                        HrefValue = "http://www.spsu.edu" + HrefValue;
+                                        //HrefValue = "http://www.spsu.edu" + HrefValue;
+                                        HrefValue = sl.SourceAddress + HrefValue;
                                     }
 
                                     if (!linkQueue.Contains(HrefValue) && !HrefValue.Equals("#") && !HrefValue.Equals("./"))
                                     {
                                         lock(linkQueue)
                                         {
-                                            linkQueue.Enqueue(HrefValue);
+                                            SourceLink sl2 = new SourceLink(HrefValue, sl.SourceAddress, sl.PageDepth + 1);
+
+                                            linkQueue.Enqueue(sl2);
                                         }
                                         
                                     }
@@ -155,7 +165,8 @@ namespace Crawler
 
                                     if (href2[0].Equals('/'))
                                     {
-                                        HrefValue2 = "http://www.spsu.edu" + HrefValue2;
+                                       // HrefValue2 = "http://www.spsu.edu" + HrefValue2;
+                                        HrefValue2 = sl.SourceAddress + HrefValue2;
                                     }
 
 
@@ -163,7 +174,9 @@ namespace Crawler
                                     {
                                         lock (linkQueue)
                                         {
-                                            linkQueue.Enqueue(HrefValue2);
+                                            SourceLink sl2 = new SourceLink(HrefValue2, sl.SourceAddress, sl.PageDepth + 1);
+
+                                            linkQueue.Enqueue(sl2);
                                         }
                                     }
                                 }
@@ -193,7 +206,7 @@ namespace Crawler
                     //Console.WriteLine("Miscellaneous exception thrown.");
                 }
             }
-            public static string GetWebText(string url)
+            public static string GetWebText(SourceLink sl)
             {
                 WebResponse response = null;
                 Stream stream = null;
@@ -203,7 +216,7 @@ namespace Crawler
 
                     //Console.WriteLine("\nGetting HTML from Webpage \n");
                     //Console.WriteLine(url);
-                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(sl.SourceAddress);
                     request.UserAgent = "A .NET Web Crawler"; 
                     string htmlText;
                     request.Accept = "text/html";
@@ -245,9 +258,12 @@ namespace Crawler
 
                         using (ErrorEntitiesContext errorsDb = new ErrorEntitiesContext())
                         {
+                            errors.Add(new Error(webExcp.ToString(), sl.SourceAddress, sl.SourceURL, sl.PageDepth));
+
                             ErrorModel error = new ErrorModel();
                             error.ErrorStatus = webExcp.ToString();
-                            error.Link = url;
+                            error.WebPage = sl.SourceURL;
+                            error.Link = sl.SourceAddress;
                             error.ErrorTimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                             error.ReportId = CrawlerControl.currentReportId;
                             errorsDb.Errors.Add(error);

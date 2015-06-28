@@ -6,18 +6,16 @@ using System.Threading.Tasks;
 
 namespace Crawler
 {
-    class Error
+    class SourceLink
     {
-        public string StatusCode;
         public string SourceAddress;
         public string SourceURL;
         public int PageDepth;
 
-        public Error(string Code, string Address, string URL, int Depth)
+        public SourceLink(string Address, string URL, int Depth)
         {
-            StatusCode = Code;
-            SourceAddress = Address;
             SourceURL = URL;
+            SourceAddress = Address;
             PageDepth = Depth;
 
         }
