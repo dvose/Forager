@@ -13,8 +13,8 @@ namespace Forager.Controllers
         [Authorize]
         public ActionResult Index()
         {
-            ViewBag.Message = "Modify this template to jump-start your ASP.NET MVC application.";
-
+            ViewData["CrawlerRunning"] = Crawler.CrawlerControl.inProgress;
+            ViewData["Stopping"] = Crawler.WebCrawler.shouldStop;
             return View();
         }
 

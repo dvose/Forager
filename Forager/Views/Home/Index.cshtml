@@ -35,8 +35,33 @@
     <br>
     <div id="div2" style="text-align: center;">
     
-   <button id="btn1" text-align:center>Start Crawler</button></div> 
-    <div id="div3"style="text-align: center;"> <button id="btn2">Stop</button></div>
+        @if ((bool)ViewData["CrawlerRunning"] && !(bool)ViewData["Stopping"])
+        {
+          using (Html.BeginForm("Stop", "Crawler"))
+            {
+                <button type="submit">Stop</button>
+            }
+        }
+        
+        @if ((bool)ViewData["CrawlerRunning"] && (bool)ViewData["Stopping"])
+        { 
+            using (Html.BeginForm("Index", "Home"))
+            {
+                <button type="submit">Stoping Web Crawler...</button>
+            }
+        }
+        
+        @if (!(bool)ViewData["CrawlerRunning"])
+        {
+         using (Html.BeginForm("Start", "Crawler"))
+            {
+            <button type="submit">Start Crawler</button>
+            }
+        }
+
+    </div>
+    @*<button id="btn1" text-align:center>@Html.ActionLink("Start Crawler", "Start", "Crawler")</button></div> 
+    <div id="div3"style="text-align: center;"> @Html.ActionLink("Stop", "Stop","Crawler")</div>*@
 
 </body>
 </html>
