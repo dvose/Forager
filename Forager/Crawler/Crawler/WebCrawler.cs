@@ -18,9 +18,10 @@ namespace Crawler
 
             public static Queue linkQueue = new Queue();
             public static Queue checkedQueue = new Queue();
-            public static List<Error> errors = new List<Error>();
+            public static List<ErrorModel> errors = new List<ErrorModel>();
             public static int linksChecked = 0;
             public static Boolean shouldStop = false;
+            public static string currentLink = "";
 
             /*public WebCrawler(ref Queue pq)
             {
@@ -33,14 +34,9 @@ namespace Crawler
                     Thread.Sleep(1000);
                     System.Diagnostics.Debug.WriteLine("\nPages Checked " + linksChecked);
                     System.Diagnostics.Debug.WriteLine("Pages Queued: " + linkQueue.Count);
-                    if (errors.Count > 0)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Errors Logged: " + errors.Count);
-                        //foreach (Error error in errors)
-                        //{
-                        //    Console.WriteLine(error.StatusCode + " " + error.SourceAddress);
-                        //}
-                    }
+                    System.Diagnostics.Debug.WriteLine("Errors: " + errors.Count); ;
+                    System.Diagnostics.Debug.WriteLine("Current Link: " + currentLink);
+
                 }
             }
             public static void CheckLinks()
@@ -58,13 +54,22 @@ namespace Crawler
                                 break;
                         }
                         //Console.WriteLine("Thread" + Thread.CurrentThread.Name);
+                        SourceLink sl;
                         string url;
                         lock (linkQueue)
                         {
                             if (linkQueue.Count == 0) {
                                 continue;
                             }
-                            url = (string) linkQueue.Dequeue();
+                            sl = (SourceLink) linkQueue.Dequeue();
+                            url = sl.SourceAddress;
+                            if(url.Contains("http://www.omniupdate.com")){
+                                continue;
+                            }
+                            lock (currentLink) 
+                            {
+                                currentLink = url;
+                            }
                         }
                         if (url != null && !checkedQueue.Contains(url))
                         {
@@ -75,8 +80,8 @@ namespace Crawler
                             }
                             if (!url.Contains("@spsu.edu") && !url.Contains("@kennesaw.edu") && !url.Contains("#"))
                             {
-                                string htmltext = WebCrawler.GetWebText(url);
-                                WebCrawler.GetLinksFromPage(url);
+                                string htmltext = WebCrawler.GetWebText(sl);
+                                WebCrawler.GetLinksFromPage(sl);
                             }
                         }
                         else
@@ -86,17 +91,30 @@ namespace Crawler
                     //}
                 }
             }
-            public static void GetLinksFromPage(string sourceUrl)
+            public static void WriteErrors()
+            {
+                using (ErrorEntitiesContext errorsDb = new ErrorEntitiesContext())
+                {
+                    foreach (ErrorModel errorf in errors)
+                    {
+                        errorsDb.Errors.Add(errorf);
+                    }
+                    errorsDb.SaveChanges();
+                }
+                errors.Clear();
+            }
+            public static void GetLinksFromPage(SourceLink sl)
             {
                 try
                 {
+                    string sourceUrl = sl.SourceAddress;
                     //Console.WriteLine(sourceUrl);
                     if (!sourceUrl.Contains("@spsu.edu") && !sourceUrl.Contains(".pdf") && !sourceUrl.Contains(".jpg")
                         && sourceUrl.Contains("spsu.edu") && !sourceUrl.Contains(".gif") && !sourceUrl.Contains(".png")
                         && !sourceUrl.Contains("http://www.omniupdate.com") && !sourceUrl.Contains(".pcf"))
                     {
 
-                        string sourceHtml = WebCrawler.GetWebText(sourceUrl);
+                        string sourceHtml = WebCrawler.GetWebText(sl);
 
                         //Console.WriteLine("\nGathering Links from Webpage.");
                         //Console.WriteLine(sourceUrl);
@@ -123,14 +141,15 @@ namespace Crawler
                                 {
                                     if (href[0].Equals('/'))
                                     {
-                                        HrefValue = "http://www.spsu.edu" + HrefValue;
+                                        HrefValue = sl.SourceAddress + HrefValue;
                                     }
 
                                     if (!linkQueue.Contains(HrefValue) && !HrefValue.Equals("#") && !HrefValue.Equals("./"))
                                     {
+                                        SourceLink sl2 = new SourceLink(HrefValue, sl.SourceAddress, sl.PageDepth + 1);
                                         lock(linkQueue)
                                         {
-                                            linkQueue.Enqueue(HrefValue);
+                                            linkQueue.Enqueue(sl2);
                                         }
                                         
                                     }
@@ -155,15 +174,16 @@ namespace Crawler
 
                                     if (href2[0].Equals('/'))
                                     {
-                                        HrefValue2 = "http://www.spsu.edu" + HrefValue2;
+                                        HrefValue2 = sl.SourceAddress + HrefValue2;
                                     }
 
 
                                     if (!linkQueue.Contains(HrefValue2) && !HrefValue2.Equals("#") && !HrefValue2.Equals("./"))
                                     {
+                                        SourceLink sl2 = new SourceLink(HrefValue2, sl.SourceAddress, sl.PageDepth + 1);
                                         lock (linkQueue)
                                         {
-                                            linkQueue.Enqueue(HrefValue2);
+                                            linkQueue.Enqueue(sl2);
                                         }
                                     }
                                 }
@@ -193,28 +213,38 @@ namespace Crawler
                     //Console.WriteLine("Miscellaneous exception thrown.");
                 }
             }
-            public static string GetWebText(string url)
+            public static string GetWebText(SourceLink sl)
             {
                 WebResponse response = null;
                 Stream stream = null;
                 StreamReader reader = null;
+                string url = sl.SourceAddress;
                 try
                 {
 
                     //Console.WriteLine("\nGetting HTML from Webpage \n");
                     //Console.WriteLine(url);
                     HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
-                    request.UserAgent = "A .NET Web Crawler"; 
-                    string htmlText;
+                    request.UserAgent = "A .NET Web Crawler";
+
+                    if (url.Contains(".doc") || url.Contains(".ppt") || url.Contains("http://www.omniupdate.com") || url.Contains(".pdf")
+                        || url.Contains(".jpg") || url.Contains(".jpeg") || url.Contains(".png") || url.Contains(".gif")
+                        || url.Contains(".pcf") || url.Contains(".mp4") || url.Contains(".mp3") || url.Contains(".mov")
+                        || url.Contains(".avi")) {
+                            request.Method = "HEAD";
+                    }
+                    string htmlText = null;
                     request.Accept = "text/html";
                     using (response = request.GetResponse()) {
-                       
-                        using (stream = response.GetResponseStream()) {
-                            using (reader = new StreamReader(stream))
-                            {
-                                htmlText = reader.ReadToEnd();
-                            }
+
+                        if (request.Method != "HEAD") {
+                            using (stream = response.GetResponseStream()) {
+                                using (reader = new StreamReader(stream))
+                                {
+                                    htmlText = reader.ReadToEnd();
+                                }
                             
+                            }
                         }
                     }
                 
@@ -243,16 +273,29 @@ namespace Crawler
                            //+ httpResponse.StatusCode);
 
 
-                        using (ErrorEntitiesContext errorsDb = new ErrorEntitiesContext())
+                        ErrorModel error = new ErrorModel();
+                        error.ErrorStatus = "Status Code: " + (int)((HttpWebResponse)webExcp.Response).StatusCode + " - " + ((HttpWebResponse)webExcp.Response).StatusCode.ToString();
+                        error.Link = sl.SourceAddress;
+                        error.WebPage = sl.SourceURL;
+                        error.Depth = sl.PageDepth;
+                        error.ErrorTimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                        error.ReportId = CrawlerControl.currentReportId;
+
+                        lock (errors) 
                         {
-                            ErrorModel error = new ErrorModel();
-                            error.ErrorStatus = webExcp.ToString();
-                            error.Link = url;
-                            error.ErrorTimeStamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                            error.ReportId = CrawlerControl.currentReportId;
-                            errorsDb.Errors.Add(error);
-                            errorsDb.SaveChanges();
+                            errors.Add(error);
+                            if (errors.Count > 1000) 
+                            {
+                                WebCrawler.WriteErrors();
+                            }
                         }
+
+                        //using (ErrorEntitiesContext errorsDb = new ErrorEntitiesContext())
+                        //{
+
+                        //    errorsDb.Errors.Add(error);
+                        //    errorsDb.SaveChanges();
+                        //}
                         
                     }
                     //Console.WriteLine(errors.Last().StatusCode);

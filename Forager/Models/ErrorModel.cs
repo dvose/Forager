@@ -23,6 +23,7 @@ namespace Forager.Models
         public string WebPage { get; set; }
         public string ErrorStatus { get; set; }
         public string Link { get; set; }
+        public int Depth { get; set; }
         public string ErrorTimeStamp { get; set; }
 
         public static Comparison<ErrorModel> ErrorModelByErrorType = delegate(ErrorModel e1, ErrorModel e2)

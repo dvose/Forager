@@ -59,14 +59,16 @@ namespace Crawler
                 //The CrawlerControl must be notified that the web crawler is no longer in progress
                 if (count == 0)
                 {
+                    WebCrawler.WriteErrors();
                     CrawlerControl.inProgress = false;
                     threads = null;
-                    //using (ReportEntitiesContext db = new ReportEntitiesContext()) {
-                    //    ReportModel currentReport = db.Reports.Find(CrawlerControl.currentReportId);
-                    //    currentReport.TimeStampStop = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    //    db.Entry(currentReport).State = System.Data.EntityState.Modified;
-                    //    db.SaveChanges();
-                    //}
+                    using (ReportEntitiesContext db = new ReportEntitiesContext())
+                    {
+                        ReportModel currentReport = db.Reports.Find(CrawlerControl.currentReportId);
+                        currentReport.TimeStampStop = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                        db.Entry(currentReport).State = System.Data.EntityState.Modified;
+                        db.SaveChanges();
+                    }
                     break;
                 }
             }          

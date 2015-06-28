@@ -28,7 +28,8 @@ namespace Crawler
                 printerThread = new Thread(WebCrawler.printStats);
                 threadCounter = new Thread(CrawlerPool.AliveThreadsCount);
 
-                WebCrawler.linkQueue.Enqueue("http://www.spsu.edu");
+                SourceLink sl = new SourceLink("http://www.spsu.edu", null, 0);
+                WebCrawler.linkQueue.Enqueue(sl);
                 printerThread.Start();
                 threadCounter.Start();
                 threads.StartPool();
@@ -56,7 +57,7 @@ namespace Crawler
         {
             WebCrawler.linkQueue = new Queue();
             WebCrawler.linksChecked = 0;
-            WebCrawler.errors = new List<Error>();
+            WebCrawler.errors = new List<ErrorModel>();
             WebCrawler.checkedQueue = new Queue();
             WebCrawler.shouldStop = false;
         }

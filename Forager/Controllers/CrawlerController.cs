@@ -13,7 +13,7 @@ namespace Forager.Controllers
         [Authorize]
         public ActionResult Start()
         {
-            Crawler.CrawlerControl.Start(15);
+            Crawler.CrawlerControl.Start(25);
             return RedirectToAction("Index", "Home");
         }
 
