@@ -16,7 +16,7 @@ namespace Forager.Controllers
 {
     [Authorize]
     [InitializeSimpleMembershipAttribute]
-    public class UserController : Controller
+    public class UserController : ApplicationController
     {
         //
         // GET: /User/Login

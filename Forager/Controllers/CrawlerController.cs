@@ -7,13 +7,13 @@ using Forager.Filters;
 
 namespace Forager.Controllers
 {
-    public class CrawlerController : Controller
+    public class CrawlerController : ApplicationController
     {
         [InitializeSimpleMembership]
         [Authorize]
         public ActionResult Start()
         {
-            Crawler.CrawlerControl.Start(25);
+            Crawler.CrawlerControl.Start(50);
             return RedirectToAction("Index", "Home");
         }
 

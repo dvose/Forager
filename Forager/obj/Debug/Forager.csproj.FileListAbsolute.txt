@@ -1,4 +1,3 @@
-C:\Users\Dustin\projects\Forager\Forager\obj\Debug\Forager.csprojResolveAssemblyReference.cache
 C:\Users\Dustin\projects\Forager\Forager\bin\Forager.dll.config
 C:\Users\Dustin\projects\Forager\Forager\bin\Forager.dll
 C:\Users\Dustin\projects\Forager\Forager\bin\Forager.pdb

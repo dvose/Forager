@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace Forager.Controllers
 {
-    public class ErrorController : Controller
+    public class ErrorController : ApplicationController
     {
         //
         // GET: /Error/General

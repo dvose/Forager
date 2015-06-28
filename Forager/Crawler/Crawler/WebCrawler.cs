@@ -139,19 +139,22 @@ namespace Crawler
 
                                 if (!HrefValue.Equals(" ") && !HrefValue.Equals(null) && href.Length > 0)
                                 {
+                                    HrefValue = WebCrawler.NormalizeLink(HrefValue);
                                     if (href[0].Equals('/'))
                                     {
-                                        HrefValue = sl.SourceAddress + HrefValue;
+                                       //HrefValue = sl.SourceAddress + HrefValue;
                                     }
 
-                                    if (!linkQueue.Contains(HrefValue) && !HrefValue.Equals("#") && !HrefValue.Equals("./"))
+                                    SourceLink sl2 = new SourceLink(HrefValue, sl.SourceAddress, sl.PageDepth + 1);
+                                    if (!linkQueue.Contains(sl2) && !HrefValue.Equals("#") && !HrefValue.Equals("./"))
                                     {
-                                        SourceLink sl2 = new SourceLink(HrefValue, sl.SourceAddress, sl.PageDepth + 1);
-                                        lock(linkQueue)
+                                        if (!checkedQueue.Contains(sl2.SourceAddress))
                                         {
-                                            linkQueue.Enqueue(sl2);
+                                            lock(linkQueue)
+                                            {
+                                                linkQueue.Enqueue(sl2);
+                                            }
                                         }
-                                        
                                     }
                                 }
                             }
@@ -171,16 +174,15 @@ namespace Crawler
 
                                 if (!HrefValue2.Equals(" ") && !HrefValue2.Equals(null) && href2.Length > 0)
                                 {
-
+                                    HrefValue2 = WebCrawler.NormalizeLink(HrefValue2);
                                     if (href2[0].Equals('/'))
                                     {
-                                        HrefValue2 = sl.SourceAddress + HrefValue2;
+                                        //HrefValue2 = sl.SourceAddress + HrefValue2;
                                     }
 
-
-                                    if (!linkQueue.Contains(HrefValue2) && !HrefValue2.Equals("#") && !HrefValue2.Equals("./"))
+                                    SourceLink sl2 = new SourceLink(HrefValue2, sl.SourceAddress, sl.PageDepth + 1);
+                                    if (!linkQueue.Contains(sl2) && !HrefValue2.Equals("#") && !HrefValue2.Equals("./"))
                                     {
-                                        SourceLink sl2 = new SourceLink(HrefValue2, sl.SourceAddress, sl.PageDepth + 1);
                                         lock (linkQueue)
                                         {
                                             linkQueue.Enqueue(sl2);
@@ -212,6 +214,17 @@ namespace Crawler
                 {
                     //Console.WriteLine("Miscellaneous exception thrown.");
                 }
+            }
+
+            private static String NormalizeLink(String url)
+            {
+                //case: link ends with / example: "http://www.test.com/"
+                if (url[url.Length - 1].Equals('/'))
+                {
+                    url = url.Substring(0, url.Length - 1);
+                }
+
+                return url;
             }
             public static string GetWebText(SourceLink sl)
             {

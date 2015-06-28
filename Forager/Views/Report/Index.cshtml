@@ -1,0 +1,25 @@
+﻿@model IEnumerable<Forager.Models.ReportModel>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.ActionLink("Report: " + item.TimeStampStart, "Show", "Report", new { ReportId = item.Id }, null)
+        </td>
+    </tr>
+}
+
+</table>

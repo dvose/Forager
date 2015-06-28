@@ -7,14 +7,13 @@ using Forager.Filters;
 
 namespace Forager.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : ApplicationController
     {
          [InitializeSimpleMembership]
         [Authorize]
         public ActionResult Index()
         {
-            ViewData["CrawlerRunning"] = Crawler.CrawlerControl.inProgress;
-            ViewData["Stopping"] = Crawler.WebCrawler.shouldStop;
+           
             return View();
         }
 

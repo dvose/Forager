@@ -7,18 +7,24 @@ using Forager.Models;
 using System.Diagnostics;
 using Forager.ViewModels;
 
-namespace Waggle.Controllers
+namespace Forager.Controllers
 {
-    public class ReportController : Controller
+    public class ReportController : ApplicationController
     {
-
+        [Authorize]
         public ActionResult Index()
         {
-            return View();
+            
+            using (ReportEntitiesContext db = new ReportEntitiesContext()) {
+                var reports = db.Reports.ToList();
+                return View(reports); 
+            }
+            
+            
         }
 
         //Uncomment this after integration to keep from viewing without being logged in!
-        //[Authorize]
+        [Authorize]
         public ActionResult Show(int ReportId, int SortType = 0)
         {
             //Old code for sending a single report to the View.

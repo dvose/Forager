@@ -8,6 +8,22 @@
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
         @Styles.Render("~/Content/css")
         @Scripts.Render("~/bundles/modernizr")
+        <style>
+            body{
+                @if ((bool)ViewData["CrawlerRunning"] && !(bool)ViewData["Stopping"]) {
+                    <text> background-color: darksalmon;</text>
+
+                }
+
+                @if ((bool)ViewData["CrawlerRunning"] && (bool)ViewData["Stopping"]) {
+                   <text> background-color: gold;</text>
+                }
+
+                @if (!(bool)ViewData["CrawlerRunning"]) {
+                   <text> background-color: #90D39B;</text>
+                }
+            }
+        </style>
     </head>
     <body>
         <header>
@@ -28,7 +44,7 @@
                     <nav>
                         <ul class="menu">
                             <li>@Html.ActionLink("Web Crawler", "Index", "Home")</li>
-                            <li>@Html.ActionLink("Reports", "Index", "Home")</li>
+                            <li>@Html.ActionLink("Reports", "Index", "Report")</li>
                         </ul>
                     </nav>
                 </div>
