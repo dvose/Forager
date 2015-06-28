@@ -142,7 +142,16 @@ namespace Crawler
                                     HrefValue = WebCrawler.NormalizeLink(HrefValue);
                                     if (href[0].Equals('/'))
                                     {
-                                       HrefValue = sl.SourceAddress + HrefValue;
+                                        if (!checkedQueue.Contains(HrefValue))
+                                        {
+                                            checkedQueue.Enqueue(HrefValue);
+                                            HrefValue = sl.SourceAddress + HrefValue;
+                                        }
+                                        else 
+                                        {
+                                            continue;
+                                        }
+                                       
                                     }
 
                                     SourceLink sl2 = new SourceLink(HrefValue, sl.SourceAddress, sl.PageDepth + 1);
@@ -177,7 +186,15 @@ namespace Crawler
                                     HrefValue2 = WebCrawler.NormalizeLink(HrefValue2);
                                     if (href2[0].Equals('/'))
                                     {
-                                        HrefValue2 = sl.SourceAddress + HrefValue2;
+                                        if (!checkedQueue.Contains(HrefValue2))
+                                        {
+                                            checkedQueue.Enqueue(HrefValue2);
+                                            HrefValue2 = sl.SourceAddress + HrefValue2;
+                                        }
+                                        else
+                                        {
+                                            continue;
+                                        }
                                     }
 
                                     SourceLink sl2 = new SourceLink(HrefValue2, sl.SourceAddress, sl.PageDepth + 1);
