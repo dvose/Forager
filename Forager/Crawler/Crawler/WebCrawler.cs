@@ -145,7 +145,7 @@ namespace Crawler
                                         if (!checkedQueue.Contains(HrefValue))
                                         {
                                             checkedQueue.Enqueue(HrefValue);
-                                            HrefValue = sl.SourceAddress + HrefValue;
+                                            HrefValue = "http://www.spsu.edu" + HrefValue;
                                         }
                                         else 
                                         {
@@ -189,7 +189,7 @@ namespace Crawler
                                         if (!checkedQueue.Contains(HrefValue2))
                                         {
                                             checkedQueue.Enqueue(HrefValue2);
-                                            HrefValue2 = sl.SourceAddress + HrefValue2;
+                                            HrefValue2 = "http://www.spsu.edu" + HrefValue2;
                                         }
                                         else
                                         {
