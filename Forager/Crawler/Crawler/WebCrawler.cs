@@ -17,11 +17,14 @@ namespace Crawler
             //public PriorityQueue q;
 
             public static Queue linkQueue = new Queue();
-            public static Queue checkedQueue = new Queue();
+            public static Dictionary<string, string> checkedLinks = new Dictionary<string,string>();
             public static List<ErrorModel> errors = new List<ErrorModel>();
             public static int linksChecked = 0;
+            public static int errorsFound = 0;
             public static Boolean shouldStop = false;
-            public static string currentLink = "";
+            public static ManualResetEvent rse = new ManualResetEvent(false);
+            public static SourceLink currentLink =  new SourceLink();
+            public static string liveUpdate = "Web Crawler is ready to start";
 
             /*public WebCrawler(ref Queue pq)
             {
@@ -32,21 +35,39 @@ namespace Crawler
                 while(!shouldStop)
                 {
                     Thread.Sleep(1000);
-                    System.Diagnostics.Debug.WriteLine("\nPages Checked " + linksChecked);
-                    System.Diagnostics.Debug.WriteLine("Pages Queued: " + linkQueue.Count);
-                    System.Diagnostics.Debug.WriteLine("Errors: " + errors.Count); ;
-                    System.Diagnostics.Debug.WriteLine("Current Link: " + currentLink);
 
+                    if (!rse.WaitOne(0))
+                    {
+                        System.Diagnostics.Debug.WriteLine("Crawler is currently paused...\n");
+                        liveUpdate = "\nCrawler is currently paused\n";
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("\nPages Checked " + linksChecked);
+                        System.Diagnostics.Debug.WriteLine("Pages Queued: " + linkQueue.Count);
+                        System.Diagnostics.Debug.WriteLine("Errors: " + errorsFound);
+                        System.Diagnostics.Debug.WriteLine("Current Link: " + currentLink.SourceAddress);
+
+                        string printableLink = currentLink.SourceAddress.Length <= 80 ? currentLink.SourceAddress : currentLink.SourceAddress.Substring(0, 80) + "...";
+                        liveUpdate = "Report Start Time: " + CrawlerControl.startTime + "\n" +
+                                     "\n" +
+                                     "Pages Checked: " + linksChecked + "\n" +
+                                     "Errors Found: " + errorsFound + "\n" +
+                                     "\n" +
+                                     "Current Page: " + currentLink.SourceURL + " | Depth: " + currentLink.PageDepth + "\n" +
+                                     "Current Link: " + printableLink  + "\n";
+                    }
                 }
+
+                liveUpdate = "Currently Stopping Web Crawler \nPlease Wait...";
             }
             public static void CheckLinks()
             {
-                //Console.WriteLine("Checking Links \n");
-                //System.IO.File.WriteAllText(@"C:\Users\Dustin\Documents\HtmlLinks.txt", string.Empty);
-                //using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\Users\Dustin\Documents\HtmlLinks.txt"))
-                //{
                     while (!shouldStop)
                     {
+                       //if the thread is paused, the thread will wait here until it resumes
+                        rse.WaitOne();
+
                         if (linkQueue.Count == 0)
                         {
                             Thread.Sleep(1500);
@@ -68,14 +89,14 @@ namespace Crawler
                             }
                             lock (currentLink) 
                             {
-                                currentLink = url;
+                                currentLink = sl;
                             }
                         }
-                        if (url != null && !checkedQueue.Contains(url))
+                        if (url != null && !checkedLinks.ContainsKey(url))
                         {
-                            lock (checkedQueue)
+                            lock (checkedLinks)
                             {
-                                checkedQueue.Enqueue(url);
+                                checkedLinks.Add(url, null);
                                 linksChecked++;
                             }
                             if (!url.Contains("@spsu.edu") && !url.Contains("@kennesaw.edu") && !url.Contains("#"))
@@ -142,9 +163,9 @@ namespace Crawler
                                     HrefValue = WebCrawler.NormalizeLink(HrefValue);
                                     if (href[0].Equals('/'))
                                     {
-                                        if (!checkedQueue.Contains(HrefValue))
+                                        if (!checkedLinks.ContainsKey(HrefValue))
                                         {
-                                            checkedQueue.Enqueue(HrefValue);
+                                            checkedLinks.Add(HrefValue,null);
                                             HrefValue = "http://www.spsu.edu" + HrefValue;
                                         }
                                         else 
@@ -157,7 +178,7 @@ namespace Crawler
                                     SourceLink sl2 = new SourceLink(HrefValue, sl.SourceAddress, sl.PageDepth + 1);
                                     if (!linkQueue.Contains(sl2) && !HrefValue.Equals("#") && !HrefValue.Equals("./"))
                                     {
-                                        if (!checkedQueue.Contains(sl2.SourceAddress))
+                                        if (!checkedLinks.ContainsKey(sl2.SourceAddress))
                                         {
                                             lock(linkQueue)
                                             {
@@ -186,9 +207,9 @@ namespace Crawler
                                     HrefValue2 = WebCrawler.NormalizeLink(HrefValue2);
                                     if (href2[0].Equals('/'))
                                     {
-                                        if (!checkedQueue.Contains(HrefValue2))
+                                        if (!checkedLinks.ContainsKey(HrefValue2))
                                         {
-                                            checkedQueue.Enqueue(HrefValue2);
+                                            checkedLinks.Add(HrefValue2,null);
                                             HrefValue2 = "http://www.spsu.edu" + HrefValue2;
                                         }
                                         else
@@ -314,6 +335,7 @@ namespace Crawler
                         lock (errors) 
                         {
                             errors.Add(error);
+                            errorsFound++;
                             if (errors.Count > 100) 
                             {
                                 WebCrawler.WriteErrors();

@@ -12,6 +12,13 @@
          public string SourceURL;
          public int PageDepth;
 
+         public SourceLink()
+         {
+             SourceURL = "";
+             SourceAddress = "";
+             PageDepth = 0;
+         }
+
          public SourceLink(string Address, string URL, int Depth)
          {
              SourceURL = URL;

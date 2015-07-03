@@ -13,21 +13,18 @@ namespace Forager.Controllers
         [Authorize]
         public ActionResult Index()
         {
-           
+            ViewData["CrawlerPaused"] = Crawler.CrawlerControl.isPaused;
             return View();
         }
 
-        public ActionResult About()
+        public ActionResult LiveUpdate()
         {
-            ViewBag.Message = "Your app description page.";
-
-            return View();
+            ViewData["update"] = Crawler.WebCrawler.liveUpdate;
+            return PartialView("_LiveUpdate");
         }
 
-        public ActionResult Contact()
+        public ActionResult Updates()
         {
-            ViewBag.Message = "Your contact page.";
-
             return View();
         }
     }

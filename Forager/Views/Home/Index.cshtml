@@ -18,9 +18,10 @@
         });
     </script>*@
     <style>
-        #div1 {
-            height: 150px;
-            width: 600px;
+        #liveUpdate {
+            height: 200px;
+            display: block;
+            width: 700px;
             padding: 10px;
             margin: 3px;
             border: 1px solid black;
@@ -28,10 +29,22 @@
             margin: 0 auto;
         }
     </style>
+    <script>
+        function loadUpdate() {
+            $("#liveUpdateShell").load("http://localhost:56111/Home/Updates" + " #liveUpdate");
+        }
+        loadUpdate();
+        $(document).ready(function () {
+            loadUpdate();
+            setInterval(function () {
+                loadUpdate();
+            }, 1000);
+        });
+    </script>
 </head>
 <body>
     
-    <div id="div1"></div>
+    <div id="liveUpdateShell"></div>
     <br>
     <div id="div2" style="text-align: center;">
     
@@ -43,11 +56,29 @@
             }
         }
         
+        <br/>
+        
+        @if ((bool)ViewData["CrawlerRunning"] && !(bool)ViewData["CrawlerPaused"] && !(bool)ViewData["Stopping"])
+        {
+            using (Html.BeginForm("Pause", "Crawler"))
+            {
+                <button type="submit">Pause</button>
+            }
+        }
+        
+        @if ((bool)ViewData["CrawlerRunning"] && (bool)ViewData["CrawlerPaused"] && !(bool)ViewData["Stopping"])
+        {
+            using (Html.BeginForm("Resume", "Crawler"))
+            {
+                <button type="submit">Resume</button>
+            }
+        }
+        
         @if ((bool)ViewData["CrawlerRunning"] && (bool)ViewData["Stopping"])
         { 
             using (Html.BeginForm("Index", "Home"))
             {
-                <button type="submit">Stoping Web Crawler...</button>
+                <button type="submit">Stopping Web Crawler...</button>
             }
         }
         

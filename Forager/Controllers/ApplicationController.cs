@@ -12,7 +12,7 @@ namespace Forager.Controllers
         public ApplicationController()
         {
             ViewData["CrawlerRunning"] = Crawler.CrawlerControl.inProgress;
-            ViewData["Stopping"] = Crawler.WebCrawler.shouldStop;
+            ViewData["Stopping"] = Crawler.CrawlerControl.isStopping;
         }  
     }
 }

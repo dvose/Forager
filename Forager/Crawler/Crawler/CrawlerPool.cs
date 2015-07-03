@@ -76,6 +76,7 @@ namespace Crawler
                         db.Entry(currentReport).State = System.Data.EntityState.Modified;
                         db.SaveChanges();
                     }
+                    CrawlerControl.Reset();
                     break;
                 }
             }          

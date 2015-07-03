@@ -15,6 +15,9 @@ namespace Crawler
         static Thread printerThread;
         static Thread threadCounter;
         public static Boolean inProgress = false;
+        public static Boolean isStopping = false;
+        public static Boolean isPaused = false;
+        public static string startTime = "";
 
         public static int currentReportId;
 
@@ -23,6 +26,9 @@ namespace Crawler
             if (!inProgress)
             {
                 CrawlerControl.inProgress = true;
+                CrawlerControl.isStopping = false;
+                CrawlerControl.isPaused = false;
+
                 CrawlerControl.Reset();
                 threads = new CrawlerPool(threadCount);
                 printerThread = new Thread(WebCrawler.printStats);
@@ -30,13 +36,15 @@ namespace Crawler
 
                 SourceLink sl = new SourceLink("http://www.spsu.edu", null, 0);
                 WebCrawler.linkQueue.Enqueue(sl);
+                WebCrawler.rse.Set();
                 printerThread.Start();
                 threadCounter.Start();
                 threads.StartPool();
+                startTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 using (ReportEntitiesContext db = new ReportEntitiesContext())
                 {
                     ReportModel newReport = new ReportModel();
-                    newReport.TimeStampStart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    newReport.TimeStampStart = startTime;
                     db.Reports.Add(newReport);
                     db.SaveChanges();
                     currentReportId = newReport.Id;
@@ -51,6 +59,7 @@ namespace Crawler
         public static void Stop()
         {
             WebCrawler.shouldStop = true;
+            isStopping = true;
         }
 
         public static void Reset() 
@@ -58,8 +67,24 @@ namespace Crawler
             WebCrawler.linkQueue = new Queue();
             WebCrawler.linksChecked = 0;
             WebCrawler.errors = new List<ErrorModel>();
-            WebCrawler.checkedQueue = new Queue();
+            WebCrawler.checkedLinks = new Dictionary<string,string>();
+            WebCrawler.currentLink = new SourceLink();
+            WebCrawler.errorsFound = 0;
+            WebCrawler.liveUpdate = "Web Crawler is ready to start";
             WebCrawler.shouldStop = false;
+            WebCrawler.rse.Set();
+        }
+
+        public static void Pause()
+        {
+            WebCrawler.rse.Reset();
+            isPaused = true;
+        }
+
+        public static void Resume()
+        {
+            WebCrawler.rse.Set();
+            isPaused = false;
         }
     }
 }

@@ -339,6 +339,8 @@
     <Content Include="Views\User\Register.cshtml" />
     <Content Include="Views\User\_ChangePasswordPartial.cshtml" />
     <Content Include="Views\Report\Index.cshtml" />
+    <Content Include="Views\Home\_LiveUpdate.cshtml" />
+    <Content Include="Views\Home\Updates.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Crawler\Crawler\bin\Release\" />
