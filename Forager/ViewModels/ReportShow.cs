@@ -10,5 +10,6 @@ namespace Forager.ViewModels
     {
         public List<PageError> PageErrors;
         public int SortType;
+        public ReportModel Report;
     }
 }

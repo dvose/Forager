@@ -48,8 +48,12 @@ namespace Forager.Controllers
              */
             if (PageError.CurrentReportPEs.Count == 0 || PageError.CurrentReportPEs[0].ReportId != ReportId)
             {
-                ErrorEntitiesContext db = new ErrorEntitiesContext();
-                List<ErrorModel> ThisReportErrors = db.Errors.SqlQuery("SELECT * FROM Error WHERE ReportId = @p0", ReportId).ToList<ErrorModel>();
+                List<ErrorModel> ThisReportErrors;
+                using (ErrorEntitiesContext db = new ErrorEntitiesContext())
+                {
+                    ThisReportErrors = db.Errors.SqlQuery("SELECT * FROM Error WHERE ReportId = @p0", ReportId).ToList<ErrorModel>();
+                }
+                
                 //Debug.WriteLine("ThisReportErrors has " + ThisReportErrors.Count + " entries!");
                 List<PageError> PageErrors = new List<PageError>();
                 foreach (ErrorModel err in ThisReportErrors) //Go through every error on this report.
@@ -85,11 +89,25 @@ namespace Forager.Controllers
                     });
                 }
                 PageError.CurrentReportPEs = PageErrors;
+
+            }
+            //Copy pasted because lazy
+            List<ErrorModel> ThisReportErrors2;
+            using (ErrorEntitiesContext db = new ErrorEntitiesContext())
+            {
+                ThisReportErrors2 = db.Errors.SqlQuery("SELECT * FROM Error WHERE ReportId = @p0", ReportId).ToList<ErrorModel>();
+            }
+            ReportModel rep = null;
+            using (ReportEntitiesContext rdb = new ReportEntitiesContext())
+            {
+                rep = rdb.Reports.Find(ReportId);
+                rep.Errors = ThisReportErrors2;
             }
             ReportShow rs = new ReportShow()
             {
                 PageErrors = PageError.CurrentReportPEs,
-                SortType = SortType
+                SortType = SortType,
+                Report = rep
             };
             
            switch(SortType){

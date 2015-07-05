@@ -26,7 +26,7 @@ namespace Forager
 
             System.Data.Entity.Database.SetInitializer<Forager.Models.ReportEntitiesContext>(null);
             System.Data.Entity.Database.SetInitializer<Forager.Models.ErrorEntitiesContext>(null);
-
+            System.Data.Entity.Database.SetInitializer<Forager.Models.UserEntitiesContext>(null);
         }
     }
 }
