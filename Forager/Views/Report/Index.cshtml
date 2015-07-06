@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Forager.Models.ReportModel>
+﻿@model List<Forager.Models.ReportModel>
 
 @{
     ViewBag.Title = "Index";
@@ -6,17 +6,37 @@
 
 <h2>Index</h2>
 
+<br />
+<h3>Compare two reports:</h3>
+@{
+    List<Forager.Models.ReportModel> Reports = new Forager.Models.ReportEntitiesContext().Reports.ToList<Forager.Models.ReportModel>();
+    List<SelectListItem> items = new List<SelectListItem>();
+    for (int i = 0; i < Reports.Count; i++)
+    {
+        items.Add(new SelectListItem() { Text = "Report " + Reports[i].Id, Value = Reports[i].Id.ToString() });
+    }
+}
+@using (Html.BeginForm("BeginCompare", "Report"))
+{
+    @Html.DropDownList("ReportDropdown1", items)
+    @Html.DropDownList("ReportDropdown2", items)
+    <br />
+    <button type="submit" style="height:3em; width:9.6em">Compare</button>
+}
+
+<h3>View a single report:</h3>
 <table>
     <tr>
         <th></th>
     </tr>
-
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.ActionLink("Report: " + item.TimeStampStart, "Show", "Report", new { ReportId = item.Id }, null)
-        </td>
-    </tr>
-}
+    @for (int i = 0; i < Model.Count(); i++ )
+    { 
+        Forager.Models.ReportModel item = Model[i];
+        <tr>
+            <td>
+                @Html.ActionLink("Report " + Model[i].Id + ": " + item.TimeStampStart, "Show", "Report", new { ReportId = item.Id }, null)
+            </td>
+        </tr>
+    }
 
 </table>

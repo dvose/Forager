@@ -1,0 +1,65 @@
+﻿@model Forager.ViewModels.ReportCompare
+@{
+    ViewBag.Title = "Compare";
+}
+
+<h2>Comparing Report @Model.Report1.Report.Id and Report @Model.Report2.Report.Id</h2>
+<h4>Summary goes here.</h4>
+<table>
+    <tr>
+        <td>Sort pages by: @Html.ActionLink("Number of errors", "SortCompare", "Report", new { SortType = 2 }, null) @Html.ActionLink("Crawl Order", "SortCompare", "Report", new { SortType = 1 }, null)</td> <!--ADD ACTIONLINK PARAMS-->
+        <td>Sort Errors by: @Html.ActionLink("Error Type", "SortCompare", "Report", new { SortType = 4 }, null) @Html.ActionLink("Link Name", "SortCompare", "Report", new { SortType = 5 }, null)</td> <!--ADD ACTIONLINK PARAMS-->
+    </tr>
+</table>
+
+<table><tr>
+           <td style="vertical-align:top">
+               <table style="table-layout: fixed; width: 100%">
+                   @for (int i = 0; i < Model.Report1.PageErrors.Count; i++)
+                   {
+                       Forager.Models.PageError pe = Model.Report1.PageErrors[i];
+                       <tr>
+                           <td style="word-wrap: break-word" width="70%"><b><a href="@pe.Page" target="_blank">@pe.Page</a></b></td>
+                           <td style="word-wrap: break-word" width="30%"><b>@pe.GetErrorList().Count @Html.ActionLink(pe.Unfold ? "-" : "+", "ToggleFoldCompare", "Report", new { Rep1 = true, PEIndex = i }, null)</b></td>
+                       </tr>
+
+                       if (pe.Unfold)
+                       {
+                           foreach (Forager.Models.ErrorModel err in pe.GetErrorList())
+                           {
+                               <tr>
+                                   <td style="word-wrap: break-word" width="60%">@err.Link</td>
+                                   <td style="word-wrap: break-word" width="40%">@err.ErrorStatus</td>
+                               </tr>
+                           }
+                       }
+                       <tr></tr>
+                   }
+               </table>
+           </td>
+           <td style="vertical-align:top">
+               <table style="table-layout: fixed; width: 100%">
+                   @for (int i = 0; i < Model.Report2.PageErrors.Count; i++)
+                   {
+                       Forager.Models.PageError pe = Model.Report2.PageErrors[i];
+                       <tr>
+                           <td style="word-wrap: break-word" width="70%"><b><a href="@pe.Page" target="_blank">@pe.Page</a></b></td>
+                           <td style="word-wrap: break-word" width="30%"><b>@pe.GetErrorList().Count @Html.ActionLink(pe.Unfold ? "-" : "+", "ToggleFoldCompare", "Report", new { Rep1 = false, PEIndex = i }, null)</b></td>
+                       </tr>
+
+                       if (pe.Unfold)
+                       {
+                           foreach (Forager.Models.ErrorModel err in pe.GetErrorList())
+                           {
+                               <tr>
+                                   <td style="word-wrap: break-word" width="60%">@err.Link</td>
+                                   <td style="word-wrap: break-word" width="40%">@err.ErrorStatus</td>
+                               </tr>
+                           }
+                       }
+                       <tr></tr>
+                   }
+               </table>
+
+           </td>
+</tr></table>

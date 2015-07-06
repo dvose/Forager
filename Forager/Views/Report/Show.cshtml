@@ -29,6 +29,18 @@
 <h2>Viewing Report @Model.Report.Id </h2>
 <br />
 <h4>This report has @Model.Report.Errors.Count errors over @Model.PageErrors.Count source pages. It started at @Model.Report.TimeStampStart and ended at @Model.Report.TimeStampStop.</h4>
+<br />
+
+
+@*<select id="Reports">
+    @for (int i = 0; i < Reports.Count; i++)
+    {
+        <option id="@Reports[i].Id">Report @Reports[i].Id</option>
+    }
+</select>
+@Html.ActionLink("Compare", "Compare", "Report", new { ReportId1 = Model.Report.Id, ReportId2 = 0, SortType = 0 }, null);
+    *@
+
 <table><tr>
 <td>Sort pages by: @Html.ActionLink("Number of errors", "Show", "Report", new { ReportId = Model.PageErrors[0].ReportId, SortType = 2 }, null) @Html.ActionLink("Crawl Order", "Show", "Report", new { ReportId = Model.PageErrors[0].ReportId, SortType = 1 }, null)</td>
 <td>Sort Errors by: @Html.ActionLink("Error Type", "Show", "Report", new { ReportId = Model.PageErrors[0].ReportId, SortType = 4 }, null) @Html.ActionLink("Link Name", "Show", "Report", new { ReportId = Model.PageErrors[0].ReportId, SortType = 5 }, null)</td>
@@ -42,19 +54,21 @@
     {
         Forager.Models.PageError pe = Model.PageErrors[i];
         <tr>
-            <td style="word-wrap: break-word" width="70%"><b><a href="@pe.Page" target="_blank">@pe.Page</a></b></td>
+            <td style="word-wrap: break-word" width="70%"><b>@(i + 1). <a href="@pe.Page" target="_blank">@pe.Page</a></b></td>
             <td style="word-wrap: break-word" width="30%"><b>Errors on this page: @pe.GetErrorList().Count @Html.ActionLink(pe.Unfold ? "Collapse" : "Expand", "ToggleFold", "Report", new { PEIndex = i, SortType = 0 }, null)</b></td>
         </tr>
 
         if (pe.Unfold)
         {
-            foreach (Forager.Models.ErrorModel err in pe.GetErrorList())
-            {
+            //foreach (Forager.Models.ErrorModel err in pe.GetErrorList())
+                for (int j = 0; j < pe.GetErrorList().Count; j++ )
+                {
+                    Forager.Models.ErrorModel err = pe.GetErrorList()[j];
                 <tr>
-                    <td style="word-wrap: break-word" width="60%">@err.Link</td>
+                    <td style="word-wrap: break-word" width="60%">@(j+1). @err.Link</td>
                     <td style="word-wrap: break-word" width="40%">@err.ErrorStatus</td>
                 </tr>
-            }
+                }
         }
         <tr></tr>
     }
