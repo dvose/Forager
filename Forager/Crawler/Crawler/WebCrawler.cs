@@ -165,14 +165,35 @@ namespace Crawler
                                     {
                                         if (!checkedLinks.ContainsKey(HrefValue))
                                         {
-                                            checkedLinks.Add(HrefValue,null);
-                                            HrefValue = "http://www.spsu.edu" + HrefValue;
+                                            String URL = sl.SourceAddress;
+                                            System.Uri uri = new System.Uri(URL);
+
+                                            checkedLinks.Add(HrefValue, null);
+                                            HrefValue = "http://" + uri.Host + HrefValue;
+
                                         }
                                         else 
                                         {
                                             continue;
                                         }
                                        
+                                    }
+
+                                    if (!href[0].Equals('/') && !HrefValue.Contains("http"))
+                                    {
+                                        if (!checkedLinks.ContainsKey(HrefValue))
+                                        {
+                                            String URL1 = sl.SourceAddress;
+                                            System.Uri uri1 = new System.Uri(URL1);
+
+                                            checkedLinks.Add(HrefValue, null);
+                                            HrefValue = "http://" + uri1.Host + "/" + HrefValue;
+                                        }
+                                        else
+                                        {
+                                            continue;
+                                        }
+
                                     }
 
                                     SourceLink sl2 = new SourceLink(HrefValue, sl.SourceAddress, sl.PageDepth + 1);
@@ -209,14 +230,35 @@ namespace Crawler
                                     {
                                         if (!checkedLinks.ContainsKey(HrefValue2))
                                         {
-                                            checkedLinks.Add(HrefValue2,null);
-                                            HrefValue2 = "http://www.spsu.edu" + HrefValue2;
+                                            String URL2 = sl.SourceAddress;
+                                            System.Uri uri2 = new System.Uri(URL2);
+
+                                            checkedLinks.Add(HrefValue2, null);
+                                            HrefValue2 = "http://" + uri2.Host + HrefValue2;
                                         }
                                         else
                                         {
                                             continue;
                                         }
                                     }
+
+                                    if (!href2[0].Equals('/') && !HrefValue2.Contains("http"))
+                                    {
+                                        if (!checkedLinks.ContainsKey(HrefValue2))
+                                        {
+                                            String URL3 = sl.SourceAddress;
+                                            System.Uri uri3 = new System.Uri(URL3);
+
+                                            checkedLinks.Add(HrefValue2, null);
+                                            HrefValue2 = "http://" + uri3.Host + "/" + HrefValue2;
+                                        }
+                                        else
+                                        {
+                                            continue;
+                                        }
+
+                                    }
+
 
                                     SourceLink sl2 = new SourceLink(HrefValue2, sl.SourceAddress, sl.PageDepth + 1);
                                     if (!linkQueue.Contains(sl2) && !HrefValue2.Equals("#") && !HrefValue2.Equals("./"))
