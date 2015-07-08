@@ -13,8 +13,9 @@
     int PagesDifferenceAbs = Math.Abs(PagesDifference);
     bool Report1HasMorePages = PagesDifference > 0;
 }
-<h4>Report @(Report1HasMorePages ? Model.Report1.Report.Id : Model.Report2.Report.Id) has @PagesDifferenceAbs more pages with errors than Report @(Report1HasMorePages ? Model.Report2.Report.Id : Model.Report1.Report.Id).
-    Report @(Report1HasMoreErrors ? Model.Report1.Report.Id : Model.Report2.Report.Id) has @ErrorsDifferenceAbs more errors total than Report @(Report1HasMoreErrors ? Model.Report2.Report.Id : Model.Report1.Report.Id).</h4>
+<br/>
+<p style="font-size: 1.1em">Report @(Report1HasMorePages ? Model.Report1.Report.Id : Model.Report2.Report.Id) has <b>@PagesDifferenceAbs</b> more pages with errors than Report @(Report1HasMorePages ? Model.Report2.Report.Id : Model.Report1.Report.Id).
+    <br/> Report @(Report1HasMoreErrors ? Model.Report1.Report.Id : Model.Report2.Report.Id) has <b>@ErrorsDifferenceAbs</b> more errors total than Report @(Report1HasMoreErrors ? Model.Report2.Report.Id : Model.Report1.Report.Id).</">
 <table>
     <tr>
         <td>Sort pages by: @Html.ActionLink("Number of errors", "SortCompare", "Report", new { SortType = 2 }, null) @Html.ActionLink("Crawl Order", "SortCompare", "Report", new { SortType = 1 }, null)</td> <!--ADD ACTIONLINK PARAMS-->
