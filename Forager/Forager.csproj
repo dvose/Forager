@@ -343,6 +343,7 @@
     <Content Include="Views\Home\_LiveUpdate.cshtml" />
     <Content Include="Views\Home\Updates.cshtml" />
     <Content Include="Views\Report\Compare.cshtml" />
+    <Content Include="Views\Report\ShowPDF.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Crawler\Crawler\bin\Release\" />

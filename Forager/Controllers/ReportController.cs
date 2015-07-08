@@ -23,6 +23,28 @@ namespace Forager.Controllers
             
         }
         [Authorize]
+        public ActionResult ShowPDF(int ReportId) 
+        {
+            ReportShow reportShow = new ReportShow();
+            ReportModel report = null;
+            using (ReportEntitiesContext db = new ReportEntitiesContext())
+            {
+                report = db.Reports.Find(ReportId);
+            }
+
+            using (ErrorEntitiesContext db = new ErrorEntitiesContext())
+            {
+                report.Errors = db.Errors.SqlQuery("SELECT * FROM Error WHERE ReportId = @p0", ReportId).ToList<ErrorModel>();
+            }
+            List<PageError> pageErrors = BuildPageErrorList(ReportId);
+
+            reportShow.Report = report;
+            reportShow.PageErrors = pageErrors;
+            
+            return View(reportShow);
+        }
+
+        [Authorize]
         public ActionResult Show(int ReportId, int SortType = 0)
         {
             if (PageError.CurrentReportPEs.Count == 0 || PageError.CurrentReportPEs[0].ReportId != ReportId)
@@ -52,6 +74,7 @@ namespace Forager.Controllers
            
             return View(rs);
         }
+
         [Authorize]
         public ActionResult ToggleFold(int PEIndex, int SortType)
         {

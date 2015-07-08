@@ -28,18 +28,13 @@
 
 <h2>Viewing Report @Model.Report.Id </h2>
 <br />
-<h4>This report has @Model.Report.Errors.Count errors over @Model.PageErrors.Count source pages. It started at @Model.Report.TimeStampStart and ended at @Model.Report.TimeStampStop.</h4>
+<p style="font-size: 1.1em"><b>Errors:</b> @Model.Report.Errors.Count <br /><b>Pages Checked:</b> @Model.PageErrors.Count <br /><b>Start Time:</b> @Model.Report.TimeStampStart <br /><b>End Time:</b> @Model.Report.TimeStampStop</p>
 <br />
 
-
-@*<select id="Reports">
-    @for (int i = 0; i < Reports.Count; i++)
-    {
-        <option id="@Reports[i].Id">Report @Reports[i].Id</option>
-    }
-</select>
-@Html.ActionLink("Compare", "Compare", "Report", new { ReportId1 = Model.Report.Id, ReportId2 = 0, SortType = 0 }, null);
-    *@
+  @using (Html.BeginForm("ShowPDF", "Report", new {ReportId = Model.Report.Id}))
+            {
+                <button type="submit">Print Report</button>
+            }
 
 <table><tr>
 <td>Sort pages by: @Html.ActionLink("Number of errors", "Show", "Report", new { ReportId = Model.PageErrors[0].ReportId, SortType = 2 }, null) @Html.ActionLink("Crawl Order", "Show", "Report", new { ReportId = Model.PageErrors[0].ReportId, SortType = 1 }, null)</td>
@@ -65,7 +60,7 @@
                 {
                     Forager.Models.ErrorModel err = pe.GetErrorList()[j];
                 <tr>
-                    <td style="word-wrap: break-word" width="60%">@(j+1). @err.Link</td>
+                    <td style="word-wrap: break-word" width="60%"><pre>      @err.Link</pre></td>
                     <td style="word-wrap: break-word" width="40%">@err.ErrorStatus</td>
                 </tr>
                 }
