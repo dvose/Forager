@@ -196,6 +196,25 @@ namespace Crawler
 
                                     }
 
+                                    if (href[0].Equals('.'))
+                                    {
+                                        if (!checkedLinks.ContainsKey(HrefValue))
+                                        {
+                                            String URL4 = sl.SourceAddress;
+                                            System.Uri uri4 = new System.Uri(URL4);
+
+                                            string subHrefValue = HrefValue.Substring(1, HrefValue.Length);
+
+                                            checkedLinks.Add(HrefValue, null);
+                                            HrefValue = "http://" + uri4.Host + subHrefValue;
+                                        }
+                                        else
+                                        {
+                                            continue;
+                                        }
+
+                                    }
+
                                     SourceLink sl2 = new SourceLink(HrefValue, sl.SourceAddress, sl.PageDepth + 1);
                                     if (!linkQueue.Contains(sl2) && !HrefValue.Equals("#") && !HrefValue.Equals("./"))
                                     {
@@ -251,6 +270,25 @@ namespace Crawler
 
                                             checkedLinks.Add(HrefValue2, null);
                                             HrefValue2 = "http://" + uri3.Host + "/" + HrefValue2;
+                                        }
+                                        else
+                                        {
+                                            continue;
+                                        }
+
+                                    }
+
+                                    if (href2[0].Equals('.'))
+                                    {
+                                        if (!checkedLinks.ContainsKey(HrefValue2))
+                                        {
+                                            String URL5 = sl.SourceAddress;
+                                            System.Uri uri5 = new System.Uri(URL5);
+
+                                            string subHrefValue = HrefValue2.Substring(1, HrefValue2.Length);
+
+                                            checkedLinks.Add(HrefValue2, null);
+                                            HrefValue2 = "http://" + uri5.Host + subHrefValue;
                                         }
                                         else
                                         {
