@@ -94,6 +94,11 @@ namespace Forager.Controllers
                     return RedirectToAction("Index");
                 }
             }
+            using (ErrorEntitiesContext db = new ErrorEntitiesContext())
+            {
+                rc.Report1.Report.Errors = db.Errors.SqlQuery("SELECT * FROM Error WHERE ReportId = @p0", ReportId1).ToList<ErrorModel>();
+                rc.Report2.Report.Errors = db.Errors.SqlQuery("SELECT * FROM Error WHERE ReportId = @p0", ReportId2).ToList<ErrorModel>();
+            }
             if (SortType > 0)
             {
                 DoSort(SortType, rc.Report1.PageErrors);
